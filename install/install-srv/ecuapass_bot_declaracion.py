@@ -1,0 +1,1 @@
+../../ecuserver/ecuapass_bot_declaracion.py

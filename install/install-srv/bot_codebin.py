@@ -1,0 +1,1 @@
+../../ecuserver/bot_codebin.py
