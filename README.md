@@ -1,5 +1,7 @@
 # cartaportes-inteligente
-Extracción y digitación automática de docuentos de cartaportes.
+Extractting and automatic typing of ECUAPASS docs.
+
+Main program is a Java GUI that calls a Python server running a flask and selenium webdriver.
 
 ## LOG
 Jun/16: r0.920. BOT3: Improved fillBoxCheck (No check). Improved fillSubject using waitForInfo
@@ -10,5 +12,4 @@ Jun/11: r0.906: Fixed errors. Threads. CodebinBot validations and exceptions.
 Jun/06: r0.905: Server messages to GUI. Ecudoc Exceptions 
 Jun/04: r0.904: Testing processes vs threads, forced exit, own thread for CodebinBot.
 May/29: r0.903: Redesigned with multiprocessing for windows and forced exit.
-
 
