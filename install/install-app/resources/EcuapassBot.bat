@@ -1,8 +1,8 @@
-taskkill /IM "ecuapass_app.exe" /F
+taskkill /IM "ecuapass_server.exe" /F
 
-echo "Actualizando Ecuapassdocs..."
+echo "Actualizando EcuapassBot..."
 
 git reset --hard 
 git pull origin main
 
-ecuapass_app.exe
+EcuapassBotGUI.exe

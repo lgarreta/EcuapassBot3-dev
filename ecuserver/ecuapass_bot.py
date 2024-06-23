@@ -2,7 +2,6 @@ import re, os, sys, json, datetime, time
 
 import pyautogui as py
 import pywinauto
-import win32gui as w32     # For getting cursor ID 
 
 import pyperclip
 from pyperclip import copy as pyperclip_copy
@@ -49,9 +48,9 @@ class EcuBot:
 		Utils.printx ("Leyendo settings desde: ", settingsPath)
 		settings		   = json.load (open (settingsPath, encoding="utf-8")) 
 		self.empresaName   = settings ["empresa"]
-		self.NORMAL_PAUSE  = float (settings ["NORMAL_PAUSE"])
-		self.SLOW_PAUSE    = float (settings ["SLOW_PAUSE"])
-		self.FAST_PAUSE    = float (settings ["FAST_PAUSE"])
+		self.NORMAL_PAUSE  = 0.05 #float (settings ["NORMAL_PAUSE"])
+		self.SLOW_PAUSE    = 0.5 #float (settings ["SLOW_PAUSE"])
+		self.FAST_PAUSE    = 0.01 #float (settings ["FAST_PAUSE"])
 		py.PAUSE		   = self.NORMAL_PAUSE
 
 		Utils.printx (">>> BOT Settings:")
@@ -67,8 +66,8 @@ class EcuBot:
 		message = ""
 		try:
 			Utils.printx (f"Iniciando digitaciOn de documento '{self.jsonFilepath}'")
-			#self.initEcuapassWindow ()
-			#py.sleep (0.2)
+			self.initEcuapassWindow ()
+			self.sleep (0.2)
 			self.fillEcuapass ()
 			message = Utils.printx (f"MENSAJE: Documento digitado correctamente")
 		except Exception as ex:
@@ -90,6 +89,7 @@ class EcuBot:
 
 		#self.detectEcuapassDocumentPage (self.docType)
 		self.clearWebpageContent ()
+		self.waitForInfo ()
 
 	#-- Select first item from combo box
 	def selFirstItemFromBox  (self):
@@ -279,22 +279,26 @@ class EcuBot:
 
 		pyperclip_copy (fieldValue)
 		py.hotkey ("ctrl", "v")
-		py.sleep (0.05)
+		self.waitForInfo ()
+		#py.sleep (0.05)
+		py.PAUSE = 0.005
+		#py.PAUSE = self.SLOW_PAUSE
 		#py.sleep (self.SLOW_PAUSE)
 		py.press ("down")
 		py.press ("down")
 		py.press ("down")
-		py.sleep (0.05)
 		#py.sleep (self.SLOW_PAUSE)
 
 
 		py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
-		py.sleep (0.05)
+		py.PAUSE = self.NORMAL_PAUSE
+		#py.sleep (0.05)
 
 	#--------------------------------------------------------------------
 	# Wait until 'ready' cursor is present
 	#--------------------------------------------------------------------
 	def waitForInfo (self):
+		import win32gui as w32     
 		waitCursorId  = 244122955
 		readyCursorId = 65539
 
@@ -556,6 +560,23 @@ class EcuBot:
 	#-- Click on selected cartaporte
 	def clickSelectedCartaporte (self, fieldName):
 		Utils.printx ("Localizando cartaporte...")
+		filePaths = Utils.imagePath ("image-text-terrestre")
+		for fpath in filePaths:
+			print (">>> Probando: ", os.path.basename (fpath))
+			xy = py.locateCenterOnScreen (fpath, confidence=0.70, grayscale=False)
+			if (xy):
+				Utils.printx ("...Cartaporte detectada")
+				py.click (xy[0], xy[1], interval=1)    
+				return True
+
+		fieldValue = self.fields [fieldName]
+		self.notFilledFields.append ((fieldName, fieldValue))
+		Utils.printx ("...No se detectó cartaporte.")
+		return False
+
+    #-- Click on selected cartaporte
+	def old_clickSelectedCartaporte (self, fieldName):
+		Utils.printx ("Localizando cartaporte...")
 		xy = py.locateCenterOnScreen (Utils.imagePath ("image-text-blue-TERRESTRE-manifiesto.png"), 
 				confidence=0.7, grayscale=False)
 		if (xy):
@@ -566,7 +587,8 @@ class EcuBot:
 		fieldValue = self.fields [fieldName]
 		self.notFilledFields.append ((fieldName, fieldValue))
 		Utils.printx ("ALERTA: No se detectó cartaporte seleccionada")
-
+ 
+  
 	#-- Create message with fields not filled
 	def createResultsMessage (self):
 		msgs = [f"ALERTA: Finalizada la digitación"]

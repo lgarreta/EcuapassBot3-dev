@@ -40,7 +40,7 @@ class EcuBotManifiesto (EcuBot):
 			self.initEcuapassWindow ()
 			py.sleep (0.2)
 			self.fillEcuapass ()
-			message = Utils.printx (f"MENSAJE: Documento digitado correctamente")
+			message = Utils.printx (f"MENSAJE: Finalizada la digitaciOn")
 		except Exception as ex:
 			text = str (ex).strip (")(") 
 			message = Utils.printx (f"ALERTA: {text}")
@@ -196,8 +196,8 @@ class EcuBotManifiesto (EcuBot):
 		print ("\n>>>>>> Buscando/Seleccionando cartaporte <<<<<<")
 
 		self.skipN (18, "LEFT")          # Go back to Find Button  
+
 		py.press ("space"); py.sleep (2) # Press Find button
-		
 		self.skipN (3);                  # Go to "fecha/hora" and select "Mes" 
 		self.fillBoxIter ("Mes", "NO_TAB")
 		self.skipN (3); py.press ("end") # Go to "tipo documento" and select "CPIC"
@@ -206,10 +206,10 @@ class EcuBotManifiesto (EcuBot):
 		self.skipN (4)                   # Go to found cartaportes
 		py.press ("down")
 		py.press ("enter")
-		self.clickSelectedCartaporte ("69_CPIC")
-		py.press ("Tab"); py.press ("space")
-
-		Utils.printx (f"MENSAJE: Finalizada digitación. Seleccione la Carta de Porte. ")
+		if self.clickSelectedCartaporte ("69_CPIC"):
+			py.press ("Tab"); py.press ("space")
+		else:
+			Utils.printx (f"MENSAJE: Seleccione manualmente la Carta de Porte.")
 
 #--------------------------------------------------------------------
 # Call to main

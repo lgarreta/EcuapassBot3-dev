@@ -53,7 +53,7 @@ public class Utils {
 				Files.delete (destPath.toPath ());
 			Files.copy (sourcePath.toPath (), destPath.toPath (), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException ex) {
-			System.out.println ("EXCEPCION: No se pudo reemplazar el archivo");
+			System.out.println ("No se pudo reemplazar el archivo: " + destFilepath);
 			//Logger.getLogger (Utils.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 

@@ -1,7 +1,6 @@
 package widgets;
 
 import documento.DocModel;
-import main.Controller;
 import main.Utils;
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,6 @@ import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.abs;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -219,7 +217,7 @@ public final class ImageViewLens extends javax.swing.JPanel {
 		imgFrame.setSize (800, 600);
 		imgFrame.setLocationRelativeTo (null);
 		imgFrame.setVisible (true);
-		imgPanel.showImage (new File (imgPath));
+		imgPanel.showImage (new File ("CPI-LOGITRANS-EC56031181.pdf"));
 	}
 
 }

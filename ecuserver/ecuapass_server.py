@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-VERSION="0.903"
+VERSION="0.912"
 """
 LOG: 
+Jun/21 : 0.912 : V3. BOT,INFO: Modified to work with LOGITRANS
+Jun/19 : 0.911 : V3. Runs webdriver first, then flask server
 Jun/14 : 0.910 : V3. Runs flask and webdriver servers
 Jun/13 : 0.903 : Fixed return value for responding to Java.
 Jun/06 : 0.900 : Redesigned as three independent process: GUI, Server, webdrive
@@ -43,7 +45,8 @@ def main ():
 		portNumber = args [1]
 		EcuServer.start (portNumber)
 	else:
-		EcuServer.run_server_forever (None)
+		result = EcuServer.run_server_forever (None)
+		return (result)
 
 #-----------------------------------------------------------
 # Ecuapass server: listen GUI messages and run processes
@@ -73,37 +76,28 @@ app = FlaskServer (result_queue)
 #-----------------------------------------------------------
 #-----------------------------------------------------------
 class EcuServer:
-	#-- Start the server in a port number
+	#-- Start the server with a port number
 	def run_server_forever (portNumber):
 		try:
-			#webdriver = CodebinBot.getWaitWebdriver ()
-			webdriverThread = Thread (target=CodebinBot.getWaitWebdriver)
-			webdriverThread.start ()
-#		flaskProcess = Thread (target=EcuServer.run_server_forever)
-#		flaskProcess.start ()
+			webdriver  = CodebinBot.getWaitWebdriver ()
+
 			portNumber = EcuServer.getPortNumber (portNumber)
-			server      = make_server('127.0.0.1', portNumber, app)
+			server     = make_server('127.0.0.1', portNumber, app)
+
 			Utils.printx (f">>>>>>>>>>>>>>>> Server version: {VERSION} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 			Utils.printx (f">>>>>>>>>>>>>>>> Server is running on port::{portNumber}::<<<<<<<<<<<<<<<<<<")
 			server.serve_forever()
 		except SystemExit:
 			print ("-------------------------- Server Exit -------------------------------")
-		except:
-			Utils.printException ()
-
+		except WebDriverException as e:
+			Utils.printx ("ERROR: Intente nuevamente. Problemas conectandose con CODEBIN")
+			return (Utils.printx ("Finalizando servidor Ecuapass"))
+		return (Utils.printx ("--- Server Exit ---"))
 
 	#-- Start server searching a port number from file
 	def start ():
 		portNumber  = EcuServer.getPortNumber ()
 		run_server_forever (porNumber)
-#		flaskProcess = Thread (target=EcuServer.run_server_forever)
-#		flaskProcess.start ()
-
-#		webdriverProcess = Thread (target=EcuServer.getWebdriver, args=(result_queue,))
-#		webdriverProcess.start ()
-
-#		flaskProcess.join ()
-#		webdriverProcess.join ()
 
 	#----------------------------------------------------------------
 	# Listen for remote calls from Java GUI
@@ -157,6 +151,7 @@ class EcuServer:
 			return result
 		except Exception as ex:
 			print (f"Error en start_processing: '{ex}'")
+			Utils.printException ()
 
 	#----------------------------------------------------------------
 	# Stop server

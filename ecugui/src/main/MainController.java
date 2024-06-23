@@ -27,7 +27,10 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.903"; //Improved GUI responsiveness using InvokeLater 
+	String appRelease = "0.906"; //Modified settings to work with three users: colombia, ecuador, peru
+	//String appRelease = "0.905"; //Update waiting por port to 10 times 
+	//String appRelease = "0.904"; //Improved message "Archivo existente"
+	//String appRelease = "0.903"; //Improved GUI responsiveness using InvokeLater 
 	// String appRelease = "0.902"; // Redesigned: three threads for GUI, Server, and Webdrive
 	// String appRelease = "0.87"; //One app: GUI calling Server and Server calling Webdrive
 
@@ -221,7 +224,8 @@ public class MainController extends Controller {
 				serverWorker.startProcess ("stop", DocModel.runningPath, null);
 			createExitFile ();
 		} catch (Exception ex) {
-			ex.printStackTrace ();
+			// ex.printStackTrace ();
+			System.out.println  ("+++" + "Excepción de cierre de aplicación");
 		}
 	}
 

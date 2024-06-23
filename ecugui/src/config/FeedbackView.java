@@ -1,5 +1,6 @@
 package config;
 
+import com.google.gson.JsonObject;
 import java.awt.Font;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,11 +22,11 @@ public class FeedbackView extends javax.swing.JPanel {
 		this.settingsPanel.setController (configController);
 	}
 	
-	public JSONObject getSttings () {
-		return this.settingsPanel.getSttings ();
+	public JsonObject getSttings () {
+		return this.settingsPanel.getSettings ();
 	}
 	
-	public void setSettings (JSONObject settings) {
+	public void setSettings (JsonObject settings) {
 		this.settingsPanel.setSettings (settings);
 	}
 	
@@ -105,7 +106,7 @@ public class FeedbackView extends javax.swing.JPanel {
 
     add(messagesScroll, java.awt.BorderLayout.CENTER);
 
-    settingsPanel.setPreferredSize(new java.awt.Dimension(700, 230));
+    settingsPanel.setPreferredSize(new java.awt.Dimension(300, 180));
     add(settingsPanel, java.awt.BorderLayout.PAGE_END);
   }// </editor-fold>//GEN-END:initComponents
 

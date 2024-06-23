@@ -4,6 +4,7 @@ Extractting and automatic typing of ECUAPASS docs.
 Main program is a Java GUI that calls a Python server running a flask and selenium webdriver.
 
 ## LOG
+Jun/23: r0.921. INFO: Working for LOGITRANS. BOT: Improving fillCheck. GUI:Hidden result table, added title border.
 Jun/16: r0.920. BOT3: Improved fillBoxCheck (No check). Improved fillSubject using waitForInfo
 Jun/13: r0.910: Full Test: docs and bot. Added return messages for response handlin. Fixed printx.
 Jun/12: r0.908: controller.out withing a invokeLater

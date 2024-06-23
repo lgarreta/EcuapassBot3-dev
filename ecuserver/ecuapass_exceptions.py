@@ -13,3 +13,4 @@ class EcudocConnectionNotOpenException (EcudocException):
 
 	def __init__(self, message=None):
 		self.message = message or self.defaultMessage
+

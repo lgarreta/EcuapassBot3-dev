@@ -53,15 +53,15 @@ class CodebinBot:
 	def __init__ (self, pdfFilepath, settings, webdriver):
 		self.settings = settings
 		self.empresa  = settings ["empresa"]
-		self.url      = settings ["codebin_url"]
-		self.user     = settings ["codebin_user"]
-		self.password = settings ["codebin_password"]
+		self.url      = settings ["urlCodebin"]
+		#self.user     = settings ["userColombia"]
+		#self.password = settings ["passwordColombia"]
 
 		# Init bot settings
 		self.docNumber             = self.getDocumentNumberFromFilename (pdfFilepath) # Special for NTA
 		self.docType               = Utils.getDocumentTypeFromFilename (pdfFilepath)
 		self.pais, self.codigoPais = Utils.getPaisCodigoFromDocNumber (self.docNumber)
-		self.user, self.password   = self.getUserPasswordForEmpresaPais (self.empresa, self.pais)
+		self.user, self.password   = self.getUserPasswordForPais (self.pais)
 
 		self.webdriver             = CodebinBot.webdriver
 
@@ -74,7 +74,7 @@ class CodebinBot:
 		while not hasattr (CodebinBot, "webdriver"):
 			Utils.printx ("...Loading webdriver...")
 			options = Options()
-			#options.add_argument("--headless")
+			options.add_argument("--headless")
 			CodebinBot.IS_OPEN = False
 			CodebinBot.LAST_PAIS = ""
 			CodebinBot.DOC_FOUND = False
@@ -119,17 +119,19 @@ class CodebinBot:
 
 	#------------------------------------------------------
 	#------------------------------------------------------
-	def getUserPasswordForEmpresaPais (self, empresa, pais):
+	def getUserPasswordForPais (self, pais):
 		user, password = None, None
-		if empresa == "NTA" and pais.upper() == "COLOMBIA":
-			user      = self.settings ["codebin_user"]
-			password  = self.settings ["codebin_password"]
-		elif empresa == "NTA" and pais.upper() == "ECUADOR":
-			user      = self.settings ["codebin_user2"]
-			password  = self.settings ["codebin_password2"]
-		else: # Default: for most companies
-			user      = self.settings ["codebin_user"]
-			password  = self.settings ["codebin_password"]
+		if pais.upper() == "COLOMBIA":
+			user      = self.settings ["userColombia"]
+			password  = self.settings ["passwordColombia"]
+		elif pais.upper() == "ECUADOR":
+			user      = self.settings ["userEcuador"]
+			password  = self.settings ["passwordEcuador"]
+		elif pais.upper() == "PERU":
+			user      = self.settings ["userPeru"]
+			password  = self.settings ["passwordPeru"]
+		else:
+			raise Exception (Utils.printx (f"No se asigno user/password. Pais no existente:", pais))
 
 		return user, password
 
@@ -140,7 +142,7 @@ class CodebinBot:
 		numbers = re.findall (r"\w+\d+", filename)
 		docNumber = numbers [-1]
 
-		if self.empresa == "NTA":
+		if self.empresa == "NTA" or self.empresa == "LOGITRANS":
 			docNumber = docNumber.replace ("COCO", "CO")
 			docNumber = docNumber.replace ("ECEC", "EC")
 
@@ -178,7 +180,7 @@ class CodebinBot:
 	#-------------------------------------------------------------------
 	def getCodebinDocumentId (self, docsTable, docNumber):
 		docId   = None
-		message = f"+++ CODEBIN: ...Documento '{docNumber}' no encontrado"
+		message = f"Documento '{docNumber}' no encontrado"
 		try:
 			#table   = container.find_element (By.TAG_NAME, "table")
 			docLink    = docsTable.find_element (By.PARTIAL_LINK_TEXT, docNumber)
@@ -213,26 +215,28 @@ class CodebinBot:
 	#-------------------------------------------------------------------
 	#-------------------------------------------------------------------
 	def getCodebinSearchElements (self, textMainmenu, textSubmenu):
+		wait = WebDriverWait (self.webdriver, 5)
 		# Select menu Carta Porte I
-		cpi = self.webdriver.find_element (By.PARTIAL_LINK_TEXT, textMainmenu)
+		cpi = wait.until (EC.presence_of_element_located ((By.PARTIAL_LINK_TEXT, textMainmenu)))
 		cpi.click ()
 
 		# Select submenu 'Lista'
-		cpi_lista = self.webdriver.find_element (By.XPATH, f"//a[contains(@href, '{textSubmenu}')]")
+		cpi_lista = wait.until (EC.presence_of_element_located ((By.XPATH, f"//a[contains(@href, '{textSubmenu}')]")))
 		cpi_lista.click ()
 
 		# Get and swithc to frame 'Lista'
-		cpi_lista_object = self.webdriver.find_element (By.TAG_NAME, "object")
-		wait = WebDriverWait (self.webdriver, 2)
+		cpi_lista_object = wait.until (EC.presence_of_element_located ((By.TAG_NAME, "object")))
+
 		wait.until (EC.frame_to_be_available_and_switch_to_it (cpi_lista_object))
 		time.sleep (1)
 
 		# get and set number into input 'Buscar'
 		cpi_lista_container = self.webdriver.find_elements (By.CLASS_NAME, "container")
 		container           = cpi_lista_container [0]
-		time.sleep (1)
-		searchField    = container.find_element (By.TAG_NAME, "input")
-		searchTable    = container.find_element (By.TAG_NAME, "table")
+
+		# get the input search field
+		searchField    = wait.until (EC.presence_of_element_located ((By.TAG_NAME, "input")))
+		searchTable    = wait.until (EC.presence_of_element_located ((By.TAG_NAME, "table")))
 
 		return searchField, searchTable 
 
@@ -277,7 +281,7 @@ class CodebinBot:
 				if CodebinBot.webdriver == None:
 					Utils.printx ("+++ CODEBIN: ...AutenticAndose nuevamente...")
 					options = Options()
-					#options.add_argument("--headless")
+					options.add_argument("--headless")
 					CodebinBot.webdriver = webdriver.Firefox (options=options)
 					print (f"+++ CODEBIN:  ...Nuevo webdriver: {CodebinBot.webdriver}")
 					self.webdriver = CodebinBot.webdriver
@@ -371,6 +375,8 @@ class CodebinBot:
 			prefix = "byza"
 		elif self.empresa == "NTA":
 			prefix = "nta"
+		elif self.empresa == "LOGITRANS":
+			prefix = "logitrans"
 		else:
 			raise Exception ("Empresa desconocida")
 		

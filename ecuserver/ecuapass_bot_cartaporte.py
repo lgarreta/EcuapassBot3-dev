@@ -42,7 +42,7 @@ class EcuBotCartaporte (EcuBot):
 		try:
 			Utils.printx (f"Iniciando digitaciOn de documento '{self.jsonFilepath}'")
 			self.initEcuapassWindow ()
-			py.sleep (0.2)
+			#py.sleep (0.2)
 			self.fillEcuapass ()
 			message = Utils.printx (f"MENSAJE: Documento digitado correctamente")
 		except Exception as ex:
@@ -67,6 +67,8 @@ class EcuBotCartaporte (EcuBot):
 			self.fillText ("08_DirTransportista")
 			self.fillText ("09_NroIdentificacion")
 
+			a = input (">>>>")
+
 			self.scrollN (13)
 
 			# Remitente
@@ -83,6 +85,10 @@ class EcuBotCartaporte (EcuBot):
 							  "24_NombreConsignatario", "25_DireccionConsignatario")
 
 			self.scrollN (10)
+			# TEST
+			py.sleep (4)
+			py.press ("Tab")
+			py.press ("Tab")
 
 			# Notificado
 			self.fillText ("26_NombreNotificado")

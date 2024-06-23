@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "EcuapassBot3"
-#define MyAppVersion "0.905"
-#define MyInstallerName "EcuapassBot-0905-Instalador"
+#define MyAppVersion "0.907"
+#define MyInstallerName "EcuapassBot-0907-Instalador"
 #define MyAppExeName "EcuapassBot.bat"
 #define MyAppIconFile "EcuapassBot.ico"
 #define MyAppPublisher "Software Inteligente"

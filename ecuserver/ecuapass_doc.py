@@ -7,14 +7,12 @@ from pickle import load as pickle_load
 from pickle import dump as pickle_dump
 from traceback import format_exc as traceback_format_exc
 
-from ecuapassdocs.info.ecuapass_info_cartaporte_BYZA import CartaporteByza
-from ecuapassdocs.info.ecuapass_info_cartaporte_BOTERO import CartaporteBotero
 from ecuapassdocs.info.ecuapass_info_cartaporte_NTA import CartaporteNTA
-from ecuapassdocs.info.ecuapass_info_cartaporte_SYTSA import CartaporteSytsa
-from ecuapassdocs.info.ecuapass_info_manifiesto_BYZA import ManifiestoByza
-from ecuapassdocs.info.ecuapass_info_manifiesto_BOTERO import ManifiestoBotero
+from ecuapassdocs.info.ecuapass_info_cartaporte_BYZA import CartaporteByza
+from ecuapassdocs.info.ecuapass_info_cartaporte_LOGITRANS import CartaporteLogitrans
 from ecuapassdocs.info.ecuapass_info_manifiesto_NTA import ManifiestoNTA
-from ecuapassdocs.info.ecuapass_info_manifiesto_SYTSA import ManifiestoSytsa
+from ecuapassdocs.info.ecuapass_info_manifiesto_BYZA import ManifiestoByza
+from ecuapassdocs.info.ecuapass_info_manifiesto_LOGITRANS import ManifiestoLogitrans
 from ecuapassdocs.info.ecuapass_feedback import EcuFeedback
 from ecuapassdocs.info.ecuapass_utils import Utils
 
@@ -31,9 +29,12 @@ def main ():
 		print (USAGE)
 	else:
 		docFilepath = sys.argv [1]
-		CodebinBot.initCodebinWebdriver ()
+		#CodebinBot.initCodebinWebdriver ()
+		CodebinBot.webdriver = None
 		ecuDoc = EcuDoc ()
-		ecuDoc.extractDocumentFields (docFilepath, os.getcwd())
+		#ecuDoc.extractDocumentFields (docFilepath, os.getcwd())
+		runningDir = os.getcwd()
+		EcuDoc.analyzeDocument (docFilepath, runningDir, None)
 
 #-----------------------------------------------------------
 # Run cloud analysis
@@ -47,18 +48,18 @@ class EcuDoc:
 		try:
 			workingDir = os.path.dirname (docFilepath)
 
-			# Check if PDF is a valid ECUAPASS document
+			# Check if PDF is a valid ECUAPASS document")
 			if not EcuDoc.isValidDocument (docFilepath):
 				return f"Tipo de documento '{docFilepath}' no válido"
 
-			# Create and start threads for processing files
+			# Create and start threads for processing files")
 			os.chdir (workingDir)
 
-			# Load "empresa": reads and checks if "settings.txt" file exists
+			# Load "empresa": reads and checks if "settings.txt" file exists')
 			settings = Utils.loadSettings (runningDir)
 			empresa  = settings ["empresa"]
 
-			# Start document processing
+			# Start document processing")
 			filename       = os.path.basename (docFilepath)
 			docType        = Utils.getDocumentTypeFromFilename (filename)
 			outputFile     = EcuDoc.extractFields (docFilepath, docType, settings, webdriver)
@@ -82,7 +83,7 @@ class EcuDoc:
 		except EcudocDocumentNotFoundException as ex:
 			return (Utils.printx (f"ERROR: Documento no encontrado:\\\\{str(ex)}"))
 		except EcudocConnectionNotOpenException as ex:
-			return (Utils.printx (f"ERROR: Problamas conectAndose al CODEBIN: {str(ex)}"))
+			return (Utils.printx (f"ERROR: Problemas conectandose al CODEBIN: {str(ex)}"))
 		except Exception as ex:
 			Utils.printException (ex)
 			return (Utils.printx (f"ERROR: No se pudo extraer campos del documento:\\\\{str(ex)}"))
@@ -229,21 +230,21 @@ class EcuDoc:
 		if docType.upper() == "CARTAPORTE":
 			if "BYZA" in empresa:
 				DOCCLASS  = CartaporteByza (fieldsJsonFile, runningDir)
-			elif "BOTERO" in empresa:
-				DOCCLASS  = CartaporteBotero (fieldsJsonFile, runningDir)
 			elif "NTA" in empresa:
 				DOCCLASS  = CartaporteNTA (fieldsJsonFile, runningDir)
-			elif "SYTSA" in empresa:
-				DOCCLASS  = CartaporteSytsa (fieldsJsonFile, runningDir)
+			elif "LOGITRANS" in empresa:
+				DOCCLASS  = CartaporteLogitrans (fieldsJsonFile, runningDir)
+			else:
+				raise Exception (f"Empresa '{empresa}' no registrada")
 		elif docType.upper() == "MANIFIESTO":
 			if "BYZA" in empresa:
 				DOCCLASS = ManifiestoByza (fieldsJsonFile, runningDir)
-			elif "BOTERO" in empresa:
-				DOCCLASS = ManifiestoBotero (fieldsJsonFile, runningDir)
 			elif "NTA" in empresa:
 				DOCCLASS = ManifiestoNTA (fieldsJsonFile, runningDir)
-			elif "SYTSA" in empresa:
-				DOCCLASS = ManifiestoSytsa (fieldsJsonFile, runningDir)
+			elif "LOGITRANS" in empresa:
+				DOCCLASS = ManifiestoLogitrans (fieldsJsonFile, runningDir)
+			else:
+				raise Exception (f"Empresa '{empresa}' no registrada")
 		elif docType.upper() == "DECLARACION":
 			Utils.printx (f"ALERTA: '{docType}' no están soportadas")
 			raise Exception (f"Tipo de documento '{docType}' desconocido")
@@ -253,7 +254,8 @@ class EcuDoc:
 	#----------------------------------------------------------------
 	#-- Check if document filename is an image (.png) or a PDF file (.pdf)
 	#----------------------------------------------------------------
-	def isValidDocument (filename):
+	def isValidDocument (filepath):
+		filename  = os.path.basename (filepath)
 		extension = filename.split (".")[1]
 		if extension.lower() in ["PDF", "pdf"]:
 			return True

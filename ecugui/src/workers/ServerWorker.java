@@ -88,7 +88,7 @@ public class ServerWorker extends SwingWorker {
 				} else {
 					controller.out ("+++ Esperando archivo de puerto. Tiempo: " + elapsedTime);
 					elapsedTime++;
-					if (elapsedTime > 5) {
+					if (elapsedTime > 10) {
 						timer.cancel ();
 						JOptionPane.showMessageDialog (controller.getMainView (), "No se obtuvo archivo de puerto del servidor");
 						controller.onWindowClosing ();
