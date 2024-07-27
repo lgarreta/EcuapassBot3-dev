@@ -2,6 +2,7 @@
 Extracción y digitación automática de docuentos de cartaportes.
 
 ## LOG
+Jun/26:   r0.841. BOT3: Improved fillBoxCheck: sleep times.
 Jun/16:   r0.840. BOT3: Improved fillBoxCheck (No check). Improved fillSubject using waitForInfo
 22/Abril: r0.834. Redesigned fillSubject. Improved errors messages. Updated ecuapassdocs lib.
 20/Abril: r0.833. Working in CPI, MCI. Testing pause constants: SLOW, FAST, and NORMAL.

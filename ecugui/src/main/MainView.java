@@ -25,7 +25,7 @@ public class MainView extends JFrame {
 	}
 	public void setWindowName () {
 		String appRelease = controller.getAppRelease ();
-		String appTitle = String.format ("EcuapassDocsS %s:: Transmisión Automática de Documentos hacia el ECUAPASS", appRelease);
+		String appTitle = String.format ("EcuapassBot3 %s:: Transmisión Automática de Documentos hacia el ECUAPASS", appRelease);
 		//String appTitle = String.format ("ECUAPASS-DOCS", appRelease);
 		titleLabel.setText (appTitle);
 		setTitle ("Ecuapass-Docs");

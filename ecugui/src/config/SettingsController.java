@@ -150,21 +150,21 @@ public class SettingsController {
 		String empresa = jsonSettings.get ("empresa").getAsString ().toUpperCase ();
 		Map settings = jsonSettings.asMap ();
 
-		if (empresa.equals ("BYZA") && jsonSettings.has ("codebin_user")) {
+		if (empresa.equals ("BYZA") ) {
 			settings.clear ();
 			settings.put ("empresa", "BYZA");
 			settings.put ("urlCodebin", "https://byza.corebd.net");
 			settings.put ("userColombia", "GRUPO BYZA");
 			settings.put ("passwordColombia", "GrupoByza2020*");
-			settings.put ("userEcuador", "");
-			settings.put ("passwordEcuador", "");
+			settings.put ("userEcuador", "GRUPO BYZA");
+			settings.put ("passwordEcuador", "GrupoByza2020*");
 			settings.put ("userPeru", "");
 			settings.put ("passwordPeru", "");			
 			settings.put ("NORMAL_PAUSE", "0.05");
 			settings.put ("SLOW_PAUSE", "0.5");
 			settings.put ("FAST_PAUSE", "0.01");
 			jsonSettings = this.writeSettings (settings);
-		} else if (empresa.equals ("NTA") && jsonSettings.has ("codebin_user")) {
+		} else if (empresa.equals ("NTA") ) {
 			settings.clear ();
 			settings.put ("empresa", "NTA");
 			settings.put ("urlCodebin", "https://nta.corebd.net");
@@ -172,6 +172,20 @@ public class SettingsController {
 			settings.put ("passwordColombia", "NTAIPIALES2023");
 			settings.put ("userEcuador", "KARLA");
 			settings.put ("passwordEcuador", "NTAIPIALES2023");
+			settings.put ("userPeru", "");
+			settings.put ("passwordPeru", "");
+			settings.put ("NORMAL_PAUSE", "0.05");
+			settings.put ("SLOW_PAUSE", "0.5");
+			settings.put ("FAST_PAUSE", "0.01");
+			jsonSettings = this.writeSettings (settings);
+		} else if (empresa.equals ("LOGITRANS")) {
+			settings.clear ();
+			settings.put ("empresa", "LOGITRANS");
+			settings.put ("urlCodebin", "https://logitrans.corebd.net");
+			settings.put ("userColombia", "");
+			settings.put ("passwordColombia", "");
+			settings.put ("userEcuador", "PATO");
+			settings.put ("passwordEcuador", "Patologitrans");
 			settings.put ("userPeru", "");
 			settings.put ("passwordPeru", "");
 			settings.put ("NORMAL_PAUSE", "0.05");

@@ -67,8 +67,6 @@ class EcuBotCartaporte (EcuBot):
 			self.fillText ("08_DirTransportista")
 			self.fillText ("09_NroIdentificacion")
 
-			a = input (">>>>")
-
 			self.scrollN (13)
 
 			# Remitente
@@ -86,9 +84,6 @@ class EcuBotCartaporte (EcuBot):
 
 			self.scrollN (10)
 			# TEST
-			py.sleep (4)
-			py.press ("Tab")
-			py.press ("Tab")
 
 			# Notificado
 			self.fillText ("26_NombreNotificado")
@@ -105,7 +100,7 @@ class EcuBotCartaporte (EcuBot):
 			self.fillBoxCheck ("62_PaisEmision"); py.sleep (0.1)
 
 			# Go back to fill other fields
-			self.skipN (34, "LEFT"); py.sleep (0.1); py.press ("Tab") 
+			self.skipN (34, "LEFT"); py.press ("Tab"); py.sleep (1); 
 			self.fillBoxCheck ("30_CiudadRecepcion"); 
 			self.fillDate     ("31_FechaRecepcion"); self.skipN (2)
 			self.fillBoxCheck ("33_CiudadEmbarque"); 

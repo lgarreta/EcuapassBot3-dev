@@ -2,6 +2,7 @@ import re, os, sys, json, datetime, time
 
 import pyautogui as py
 import pywinauto
+import win32gui as w32     
 
 import pyperclip
 from pyperclip import copy as pyperclip_copy
@@ -28,10 +29,11 @@ win   = None	 # Global Ecuapass window  object
 class EcuBot:
 	# Load data, check/clear browser page
 	def __init__(self, jsonFilepath, runningDir, docType):
-		self.jsonFilepath = jsonFilepath   
-		self.runningDir   = runningDir	   
-		self.docType	  = docType
-		Utils.runningDir  = runningDir
+		self.jsonFilepath     = jsonFilepath   
+		self.runningDir       = runningDir	   
+		self.docType	      = docType
+		self.ecuapassWinTitle = 'ECUAPASS - SENAE browser'
+		Utils.runningDir      = runningDir
 
 		# Last update of Ecuapass file: set codes, remove "LOW"
 		if docType == "CARTAPORTE":
@@ -83,13 +85,14 @@ class EcuBot:
 		
 		self.win = self.activateEcuapassWindow ()
 		py.sleep (0.2)
+		#self.moveMouseToEcuapassWinCenter ()
 		#self.maximizeWindow (self.win)
 		#py.sleep (0.2)
 		#self.scrollWindowToBeginning ()
 
 		#self.detectEcuapassDocumentPage (self.docType)
 		self.clearWebpageContent ()
-		self.waitForInfo ()
+		py.sleep (3); #self.waitForInfo ()
 
 	#-- Select first item from combo box
 	def selFirstItemFromBox  (self):
@@ -160,9 +163,7 @@ class EcuBot:
 				py.sleep (self.SLOW_PAUSE)	# Regresa para activar el boton de "find" 
 
 			py.press ("space"); 
-			py.sleep (1)
-			self.waitForInfo ()
-			#py.sleep (2)
+			py.sleep (3); #self.waitForInfo ()
 		else:
 			Utils.printx ("No es una empresa ecuatoriana, no verifica RUC")
 			if subjectType == "REMITENTE":
@@ -197,7 +198,7 @@ class EcuBot:
 		if TAB_FLAG == "TAB":
 			py.press ("Tab")
 
-		#py.PAUSE = self.NORMAL_PAUSE
+		py.PAUSE = self.NORMAL_PAUSE
 
 	#--------------------------------------------------------------------
 	#-- Fill combo box pasting text and selecting first value.
@@ -222,11 +223,109 @@ class EcuBot:
 
 		py.PAUSE = self.NORMAL_PAUSE
 
+
+	#-------------------------------------------------------------------
+	#-- Fill box using sleeps to wait for data
+	#-- Using inexact three "down" to select item 
+	#-------------------------------------------------------------------
+	## def fillBoxSleep (self, fieldName, TAB_FLAG="TAB_CHECK"):
+	def fillBoxCheck (self, fieldName, TAB_FLAG="TAB_CHECK"):
+		py.PAUSE = self.NORMAL_PAUSE
+		try:
+			fieldValue = self.fields [fieldName]
+			Utils.printx (f"Llenando ComboBox '{fieldName}' : '{fieldValue}'...")
+			if fieldValue is None:
+				py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
+				return True
+
+			pyperclip_copy (fieldValue)
+			py.hotkey ("ctrl", "v"); 
+			py.sleep (self.FAST_PAUSE)
+			py.press ("down")
+			py.press ("Enter")
+			py.sleep (self.FAST_PAUSE)
+			py.sleep (0.1) #self.waitForInfo ()
+			py.sleep (self.FAST_PAUSE)
+			if "NOTAB" in TAB_FLAG:
+				return
+			else:
+				py.press ("TAB")
+		finally:
+			py.PAUSE = self.NORMAL_PAUSE
+
+#		pyperclip_copy (fieldValue)
+#		py.hotkey ("ctrl", "v")
+#		self.waitForInfo ()
+#		#py.sleep (0.05)
+#		py.PAUSE = 0.005
+#		#py.PAUSE = self.SLOW_PAUSE
+#		#py.sleep (self.SLOW_PAUSE)
+#		py.press ("down")
+#		py.press ("down")
+#		py.press ("down")
+#		#py.sleep (self.SLOW_PAUSE)
+#
+
+#		py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
+#		py.PAUSE = self.NORMAL_PAUSE
+#		#py.sleep (0.05)
+
+
+	#--------------------------------------------------------------------
+	#-- For boxes that dinamically load data
+	#-- Fill box using waiting normal cursor
+	#--------------------------------------------------------------------
+	def fillBoxWait (self, fieldName, TAB_FLAG="TAB_CHECK"):
+		py.PAUSE = self.NORMAL_PAUSE
+		try:
+			fieldValue = self.fields [fieldName]
+			Utils.printx (f"Llenando ComboBox '{fieldName}' : '{fieldValue}'...")
+			if fieldValue == None:
+				py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
+				return True
+
+			pyperclip_copy (fieldValue)
+			py.hotkey ("ctrl", "v"); 
+			py.sleep (self.FAST_PAUSE)
+			py.press ("down")
+			py.press ("Enter")
+			py.sleep (self.FAST_PAUSE)
+			py.sleep (0.1) #py.sleep (self.FAST_PAUSE)
+			if "NOTAB" in TAB_FLAG:
+				return
+			else:
+				py.press ("TAB")
+		finally:
+			py.PAUSE = self.NORMAL_PAUSE
+
+	#-- For boxes that already have loaded data
+	def fillBoxDown (self, fieldName, TAB_FLAG="TAB_CHECK"):
+		return self.fillBoxWait (fieldName, TAB_FLAG="TAB_CHECK")
+
+	#--------------------------------------------------------------------
+	# Wait while "waiting" cursor is present 
+	# It uses cursor 'handlers' that changes everytime but we
+	#   are assuming that ECUAPASS app has handlers > 100000
+	#--------------------------------------------------------------------
+	def new_waitForInfo (self):
+		waitCursorId  = 244122955
+		readyCursorId = 65539
+
+		while True:
+			info = w32.GetCursorInfo ()
+			id	 = info [1]
+			if id > 100000:
+				print ("+++ Esperando datos desde el ECUAPASS...")
+				time.sleep (0.1)
+			else:
+				break
+		time.sleep (0.1)
+
 	#--------------------------------------------------------------------
 	# Select value in combo box by pasting, checking, and pasting
 	# Return true if selected, raise an exception in other case.
 	#--------------------------------------------------------------------
-	def curr_fillBoxCheck (self, fieldName, TAB_FLAG="TAB_CHECK"):
+	def true_fillBoxCheck (self, fieldName, TAB_FLAG="TAB_CHECK"):
 		try:
 			fieldValue = self.fields [fieldName]
 			Utils.printx (f"Llenando ComboBox '{fieldName}' : '{fieldValue}'...")
@@ -270,47 +369,6 @@ class EcuBot:
 		finally:
 			py.PAUSE = self.NORMAL_PAUSE
 
-	def fillBoxCheck (self, fieldName, TAB_FLAG="TAB_CHECK"):
-		fieldValue = self.fields [fieldName]
-		Utils.printx (f"Llenando ComboBox '{fieldName}' : '{fieldValue}'...")
-		if fieldValue == None:
-			py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
-			return True
-
-		pyperclip_copy (fieldValue)
-		py.hotkey ("ctrl", "v")
-		self.waitForInfo ()
-		#py.sleep (0.05)
-		py.PAUSE = 0.005
-		#py.PAUSE = self.SLOW_PAUSE
-		#py.sleep (self.SLOW_PAUSE)
-		py.press ("down")
-		py.press ("down")
-		py.press ("down")
-		#py.sleep (self.SLOW_PAUSE)
-
-
-		py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
-		py.PAUSE = self.NORMAL_PAUSE
-		#py.sleep (0.05)
-
-	#--------------------------------------------------------------------
-	# Wait until 'ready' cursor is present
-	#--------------------------------------------------------------------
-	def waitForInfo (self):
-		import win32gui as w32     
-		waitCursorId  = 244122955
-		readyCursorId = 65539
-
-		while True:
-			info = w32.GetCursorInfo ()
-			id	 = info [1]
-			if id > 1000000:
-				print ("+++ Esperando datos desde el ECUAPASS...")
-				time.sleep (0.1)
-			else:
-				break
-		time.sleep (0.1)
 
 	#--------------------------------------------------------------------
 	# Skip N cells forward or backward 
@@ -326,6 +384,7 @@ class EcuBot:
 			print (f"Direccion '{direction}' desconocida ")
 
 		py.PAUSE = self.NORMAL_PAUSE
+		py.sleep (0.1)
 
 	#------------------------------------------------------------------
 	#-- Fill box iterating, copying, comparing.
@@ -379,7 +438,7 @@ class EcuBot:
 			dayBox		= currentDate.day
 			monthBox	= currentDate.month
 			yearBox		= currentDate.year
-			Utils.printx (f"...Fecha actual: {dayBox}-{monthBox}-{yearBox}. Full: ", currentDate)
+			Utils.printx (f"...Fecha actual: {dayBox}-{monthBox}-{yearBox}.")
 
 			py.hotkey ("ctrl", "down")
 			#py.PAUSE = self.FAST_PAUSE
@@ -465,6 +524,15 @@ class EcuBot:
 		#win.activate (); #py.sleep (SLEEP)
 		#win.resizeTo (py.size()[0].size()[1]); py.sleep (SLEEP)
 
+	def maximizeWindowByClickOnIcon (self, win):
+		imagePath = Utils.imagePath ("image-icon-maximize.png")
+		xy = py.locateCenterOnScreen (imagePath, confidence=0.70, grayscale=False)
+		if (xy):
+			Utils.printx ("+++ DEBUG:Maximizando ventana...")
+			py.click (xy[0], xy[1], interval=1)    
+			return True
+		return False
+
 	def activateWindowByTitle (self, titleString):
 		SLEEP=0.2
 		ecuWin = self.detectWindowByTitle (titleString)
@@ -480,17 +548,33 @@ class EcuBot:
 	def activateEcuapassWindow (self):
 		try:
 			Utils.printx ("Activando la ventana del ECUAPASS...")
-			ecuapassTitle = 'ECUAPASS - SENAE browser'
 			#return self.activateWindowByTitle ('ECUAPASS - SENAE browser')
 
 			# Connect to an existing instance of an application by its title
-			app = pywinauto.Application().connect(title=ecuapassTitle)
+			app = pywinauto.Application().connect(title=self.ecuapassWinTitle)
 
 			# Get a reference to the main window and activate it
-			ecuapass_window = app.window(title=ecuapassTitle)
+			ecuapass_window = app.window (title=self.ecuapassWinTitle)
 			ecuapass_window.set_focus()
+			return ecuapass_window
 		except pywinauto.ElementNotFoundError:
 			raise Exception (f"No está abierta la ventana del ECUAPASS")
+
+	#-- Move mouse to center of ecuapass window
+	def moveMouseToEcuapassWinCenter (self):
+		hwnd = w32.FindWindow(None, self.ecuapassWinTitle)
+
+		if hwnd == 0:
+			print(f"No se encontrO ventana con tItulo'{self.ecuapassWinTitle}'!")
+			return False
+
+		winRect = w32.GetWindowRect(hwnd)
+		x0, x1, y0, y1 = winRect[0], winRect [2], winRect [1], winRect [3]
+		xc = x0 + (x1 - x0) / 2
+		yc = y0 + (y1 - y0) / 2
+
+		x, y = w32.GetCursorPos()
+		py.moveTo (xc, yc)
 
 	def activateEcuapassDocsWindow (self):
 		return self.activateWindowByTitle ('Ecuapass-Docs')
@@ -574,7 +658,7 @@ class EcuBot:
 		Utils.printx ("...No se detectó cartaporte.")
 		return False
 
-    #-- Click on selected cartaporte
+	#-- Click on selected cartaporte
 	def old_clickSelectedCartaporte (self, fieldName):
 		Utils.printx ("Localizando cartaporte...")
 		xy = py.locateCenterOnScreen (Utils.imagePath ("image-text-blue-TERRESTRE-manifiesto.png"), 

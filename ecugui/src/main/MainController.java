@@ -27,7 +27,8 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.906"; //Modified settings to work with three users: colombia, ecuador, peru
+	String appRelease = "0.907"; // Activated new 'updateSettings' for the three companies: NTA, BYZA, LOGITRANS
+	//String appRelease = "0.906"; //Modified settings to work with three users: colombia, ecuador, peru
 	//String appRelease = "0.905"; //Update waiting por port to 10 times 
 	//String appRelease = "0.904"; //Improved message "Archivo existente"
 	//String appRelease = "0.903"; //Improved GUI responsiveness using InvokeLater 
@@ -52,6 +53,8 @@ public class MainController extends Controller {
 	File selectedFile = null;
 
 	public MainController () {
+		JOptionPane.showMessageDialog (null, "ALERTA: Esta version de Bot3 esta obsoleta. Utilize la versión de Bot4");
+		System.exit (0);
 		try {
 			System.setProperty ("file.encoding", "UTF-8");
 			doc = new DocModel ();

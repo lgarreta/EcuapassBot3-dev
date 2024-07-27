@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-VERSION="0.912"
+VERSION="0.913"
 """
 LOG: 
+Jun/26 : 0.913 : BOT3: Added sleeps
 Jun/21 : 0.912 : V3. BOT,INFO: Modified to work with LOGITRANS
 Jun/19 : 0.911 : V3. Runs webdriver first, then flask server
 Jun/14 : 0.910 : V3. Runs flask and webdriver servers

@@ -434,6 +434,8 @@ class CodebinBot:
 			pais, codigo = "COLOMBIA", "CO"
 		elif any (["ECUADOR" in x.upper() for x in textsWithCountry]):
 			pais, codigo = "ECUADOR", "EC"
+		elif any (["PERU" in x.upper() for x in textsWithCountry]):
+			pais, codigo = "PERU", "PE"
 			
 
 		fields ["txt0a"]["value"] = pais
